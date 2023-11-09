@@ -1,32 +1,32 @@
 import React, { useEffect, useState } from "react";
-import Toast from 'react-bootstrap/Toast';
 import api from "./api";
 
-const Game = ({ userId, onGameOver, updateCurrentScore }) => {
+const Game = ({ userId, onGameOver, updateCurrentScore, imageCount, setImageCount, updateCorrectCount }) => {
     const [isCorrect, setIsCorrect] = useState(null);
-    const [showToast, setShowToast] = useState(false);
     const [realImage, setRealImage] = useState('');
     const [fakeImage, setFakeImage] = useState('');
     const [realImageIndex, setRealImageIndex] = useState(0);
     const [fakeImageIndex, setFakeImageIndex] = useState(0);
     const [isRealImageLeft, setIsRealImageLeft] = useState(Math.random() < 0.5);
+    const [correctCount, setCorrectCount] = useState(0);
 
     const handleButtonClick = async (choice) => {
         setIsCorrect(choice);
         try {
             const response = await api.put(`/users/${userId}/update_score`, { correct: choice });
             const { current_score, high_score, game_won } = response.data;
+            setImageCount(prevCount => prevCount + 1); 
             updateCurrentScore(current_score);
-            if (game_won) {
-                onGameOver({ high_score, current_score });
-            } else if (!choice) {
-                onGameOver({ high_score, current_score });
-            } else {
+            if (choice) {
+                updateCorrectCount(true);
+            }
+             if (imageCount >= 9) {
+                onGameOver({ high_score, current_score, correctCount });
+            }
+            else {
                 setTimeout(() => {
                     loadImages();
                     setIsRealImageLeft(Math.random() < 0.5);
-                    setShowToast(true);
-                    setTimeout(() => setShowToast(false), 1500);
                 }, 500);
             }
         } catch (error) {
@@ -138,16 +138,10 @@ const Game = ({ userId, onGameOver, updateCurrentScore }) => {
                     </div>
                 </>
                 )}
-                <div class="col-12">
-                <Toast style={{position: 'absolute', top: '50%', left: '38%', zIndex: '1', backgroundColor: '#2ECC71'}} onClose={() => setShowToast(false)} show={showToast} delay={3000} autohide>
-                            
-                            <Toast.Body style={{color: 'white', fontSize: '40px'}}><strong className="me-auto">Correct!</strong></Toast.Body>
-                </Toast>
-                </div>
             </div>
                 {isCorrect !== null && (
                     <p style={{ position: 'absolute', bottom: '10px', width: '100%' }}>
-                        {isCorrect ? "" : "Game Over!"}
+                        {isCorrect ? "" : ""}
                     </p>
                 )}
             

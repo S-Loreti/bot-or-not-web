@@ -12,8 +12,10 @@ const GamePage = () => {
     const [userData, setUserData] = useState(null);
     const [gameOver, setGameOver] = useState(false);
     const [currentScore, setCurrentScore] = useState(0);
+    const [correctCount, setCorrectCount] = useState(0);
     const [highScore, setHighScore] = useState(0);
     const [highScoresList, setHighScoresList] = useState([]);
+    const [imageCount, setImageCount] = useState(0);
     const [error, setError] = useState('');
   
     useEffect(() => {
@@ -70,15 +72,28 @@ const GamePage = () => {
         console.log(score)
     };
 
+    const handleUpdateImageCount = () => {
+        setImageCount((prevImageCount) => prevImageCount + 1);
+    };
+
+    const handleUpdateCorrectCount = (isCorrect) => {
+        if (isCorrect) {
+            setCorrectCount(prevCorrectCount => prevCorrectCount + 1);
+        }
+    }; 
+
     const handleGameOver = (scoreData) => {
         setHighScore(scoreData.high_score);
         setCurrentScore(scoreData.current_score);
+        setImageCount(scoreData.imageCount); 
         setGameOver(true);
     };
 
     const handleTryAgain = () => {
         setGameOver(false);
         setCurrentScore(0);
+        setImageCount(0); 
+        setCorrectCount(0);
     };
 
     useEffect(() => {
@@ -104,13 +119,16 @@ const GamePage = () => {
     
         {userData && !gameOver && (
             <div>
-                <div style={{ zIndex: '1', position: 'absolute', top: '2%', left: '37%', color: 'black', background: '', padding: '5px 10px', borderRadius: '0px', fontWeight: 'bold' }}> 
-                    <p style={{fontFamily: 'Roboto', color: 'white', fontSize: '45px'}}>Current Score: {currentScore}</p> 
-                </div>
+                {/* <div style={{ zIndex: '1', position: 'absolute', top: '2%', left: '37%', color: 'black', background: '', padding: '5px 10px', borderRadius: '0px', fontWeight: 'bold' }}> 
+                    <p style={{fontFamily: 'Roboto', color: 'white', fontSize: '45px'}}>Image Set: {imageCount}</p> 
+                </div> */}
                 <Game 
                     userId={userData.id} 
                     onGameOver={handleGameOver}
-                    updateCurrentScore={handleUpdateCurrentScore}  
+                    updateCurrentScore={handleUpdateCurrentScore}
+                    imageCount={imageCount}
+                    setImageCount={setImageCount}  
+                    updateCorrectCount={handleUpdateCorrectCount}
                 />
             </div>
         )}
@@ -140,14 +158,14 @@ const GamePage = () => {
                                             <div class="card-text" style={{color: '#E6B382', fontSize: '28px', textAlign: 'left', padding: '50px 0px 0px 50px'}}>
                                             <Typewriter
                                                 onInit={(typewriter) => {
-                                                    typewriter.typeString(`Round Score: ......................${currentScore}`)
+                                                    typewriter.typeString(`Round Score: ......................${correctCount}`)
                                                     .pauseFor(75)
                                                     .start();
                                                   }}
                                             />
                                             <Typewriter
                                                 onInit={(typewriter) => {
-                                                    typewriter.typeString(`Accuracy: ............................${currentScore*10}%`)
+                                                    typewriter.typeString(`Accuracy: ............................${correctCount*10}%`)
                                                     .pauseFor(75)
                                                     .start();
                                                   }}
